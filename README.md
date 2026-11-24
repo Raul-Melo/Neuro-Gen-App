@@ -263,6 +263,87 @@ docker compose -f docker-compose.full.yml up -d
 
 ---
 
+## Implementação em Nuvem
+
+O frontend do Neuro-Gen pode ser publicado em nuvem de duas formas, dependendo do perfil do deploy.
+
+### Vercel
+
+Plataforma recomendada para o frontend em produção. Integra diretamente com o repositório GitHub e faz deploy automático a cada push em `main`.
+
+**Deploy em 3 passos:**
+
+1. Acesse [vercel.com](https://vercel.com) e importe o repositório `Neuro-Gen-App`
+2. Configure o diretório raiz como `web/` e o framework como **Vite**
+3. Adicione a variável de ambiente:
+
+```env
+VITE_API_URL=https://sua-api.onrender.com
+```
+
+**Configuração recomendada (`vercel.json` na raiz de `web/`):**
+
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ]
+}
+```
+
+| Recurso | Detalhe |
+|---------|---------|
+| ⚡ Deploy automático | A cada push em `main` ou `develop` |
+| 🌍 CDN global | Edge network em +100 regiões |
+| 🔒 HTTPS automático | Certificado SSL provisionado automaticamente |
+| 👁️ Preview URLs | PR abre URL de preview isolada |
+| 📊 Analytics | Web Vitals e performance integrados |
+
+---
+
+### Lovable
+
+Alternativa no-code/low-code para prototipação rápida e iteração de UI sem necessidade de CLI ou pipeline CI/CD.
+
+**Quando usar Lovable:**
+- Validação rápida de telas e fluxos com stakeholders
+- Prototipagem de novos módulos antes de implementar no código-base principal
+- Demonstrações ao vivo sem configurar ambiente local
+
+**Fluxo de trabalho:**
+
+1. Acesse [lovable.dev](https://lovable.dev) e crie um novo projeto
+2. Cole o código de um componente ou página do `web/src/features/`
+3. Itere visualmente e exporte as alterações de volta para o repositório via **GitHub Sync**
+
+| Recurso | Detalhe |
+|---------|---------|
+| 🎨 Editor visual | Edição de UI em tempo real com IA |
+| 🔄 GitHub Sync | Sincroniza alterações bidirecionalmente com o repo |
+| 📱 Preview mobile | Visualização responsiva instantânea |
+| 🚀 Publish | URL pública gerada em 1 clique para demos |
+
+---
+
+### Comparativo
+
+| Critério | Vercel | Lovable |
+|----------|--------|---------|
+| **Uso ideal** | Produção / CI-CD | Prototipagem / demos |
+| **Integração CI** | Nativa (GitHub) | Via GitHub Sync |
+| **Domínio customizado** | Sim | Sim (planos pagos) |
+| **Controle de código** | Total | Parcial (exportação) |
+| **Curva de aprendizado** | Baixa | Mínima |
+| **Custo** | Free tier generoso | Free tier limitado |
+
+> **Recomendação:** use **Vercel** para o ambiente de produção contínuo e **Lovable** para validar ideias de UI rapidamente antes de codificar.
+
+---
+
 ## Variáveis de ambiente
 
 Copie `.env.example` e preencha os valores:
