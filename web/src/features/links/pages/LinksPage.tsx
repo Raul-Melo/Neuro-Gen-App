@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Users, Plus, Shield, Clock, CheckCircle2, XCircle, Eye, Trash2, CalendarDays, Timer, Heart, Copy } from 'lucide-react'
+import { Users, Plus, Shield, Clock, CheckCircle2, XCircle, Eye, Trash2, CalendarDays, Timer, Heart } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button, Card, Badge, Avatar, Modal, Spinner } from '@/shared/components/ui'
-import { linksService, type LinkItem } from '../services/links.service'
+import { linksService, type LinkResponse as LinkItem } from '../services/links.service'
 import { useUIStore } from '@/shared/stores/ui.store'
 import { cn } from '@/shared/lib/cn'
 

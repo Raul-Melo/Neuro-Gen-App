@@ -10,16 +10,16 @@ import { useUIStore } from '@/shared/stores/ui.store'
 
 const moodIcons: Record<MoodLevel, React.ElementType> = {
   1: Frown, 2: Frown, 3: Meh, 4: Smile, 5: SmilePlus,
+  6: SmilePlus, 7: SmilePlus, 8: SmilePlus, 9: SmilePlus, 10: SmilePlus,
 }
 
 const energyIcons: Record<EnergyLevel, React.ElementType> = {
   1: BatteryWarning, 2: BatteryLow, 3: BatteryMedium, 4: BatteryFull, 5: Zap,
+  6: Zap, 7: Zap, 8: Zap, 9: Zap, 10: Zap,
 }
 
 const DISCLAIMER =
   'Este registro é apenas para autoconhecimento. Não substitui acompanhamento profissional de saúde mental.'
-
-const DAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 export function EmotionalPage() {
   const [mood, setMood]     = useState<MoodLevel | null>(null)
@@ -55,7 +55,7 @@ export function EmotionalPage() {
     onError: () => addToast({ variant: 'error', message: 'Erro ao salvar check-in. Tente novamente.' }),
   })
 
-  const trendPoints = null // trend é objeto agregado, não array de dias
+  // trend é objeto agregado, não array de dias — sem pontos individuais
   const trendObj    = trend ?? null
   const latestCheckIn = checkIns?.content?.[0]
 

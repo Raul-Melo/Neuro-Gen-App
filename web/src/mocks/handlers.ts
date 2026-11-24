@@ -22,13 +22,19 @@ import {
 const BASE = '/api/v1'
 const D = 300
 
+// ── Tipos de estado em memória
+type Task = { id: string; title: string; status: string; priority: string; dueDate: string | null; dueTime: string | null; tags: string[]; subtasks: { id: string; title: string; done: boolean }[]; reminders: unknown[]; createdAt: string; updatedAt: string }
+type CheckIn = { id: string; moodLevel: number; energyLevel: number; note: string | null; checkedAt: string }
+type VaultEntry = { id: string; type: string; title: string; encryptedPayload: string }
+type Link = { id: string; apoioId: string; apoioName: string; apoioEmail: string; status: string; permissions: string[]; createdAt: string; lastAccessAt: string | null }
+
 // ── Estado em memória (mutável durante a sessão)
-let tasks        = [...MOCK_TASKS]
-let events       = [...MOCK_EVENTS]
-let checkIns     = [...MOCK_CHECKINS]
-let links        = [...MOCK_LINKS]
-let vaultEntries = [...MOCK_VAULT_ENTRIES]
-let notifications = [...MOCK_NOTIFICATIONS]
+let tasks: Task[]             = [...MOCK_TASKS] as Task[]
+let events                    = [...MOCK_EVENTS]
+let checkIns: CheckIn[]       = [...MOCK_CHECKINS] as CheckIn[]
+let links: Link[]             = [...MOCK_LINKS] as Link[]
+let vaultEntries: VaultEntry[] = [...MOCK_VAULT_ENTRIES] as VaultEntry[]
+let notifications             = [...MOCK_NOTIFICATIONS]
 let vaultUnlocked = false
 let activeFocusSession: null | Record<string, unknown> = null
 
@@ -137,7 +143,7 @@ const taskHandlers = [
       dueTime: null,
       ...body,
     }
-    tasks = [newTask as typeof tasks[0], ...tasks]
+    tasks = [newTask as unknown as Task, ...tasks]
     return HttpResponse.json(newTask, { status: 201 })
   }),
 
@@ -306,11 +312,10 @@ const emotionalHandlers = [
     const body = await request.json() as Record<string, unknown>
     const ci = {
       id: `c${Date.now()}`,
-      moodScore: body['moodScore'],
-      energyLevel: body['energyLevel'],
-      checkInDate: new Date().toISOString().slice(0, 10),
-      checkInTime: new Date().toTimeString().slice(0, 8),
-      createdAt: new Date().toISOString(),
+      moodLevel: body['moodLevel'] as number,
+      energyLevel: body['energyLevel'] as number,
+      note: (body['note'] as string) ?? null,
+      checkedAt: new Date().toISOString(),
     }
     checkIns = [ci as typeof checkIns[0], ...checkIns]
     return HttpResponse.json(ci, { status: 201 })
@@ -328,7 +333,7 @@ const emotionalHandlers = [
       ownerId: 'u1',
       periodDays: 30,
       totalCheckIns: checkIns.length,
-      avgMoodScore: checkIns.reduce((s, c) => s + (c.moodLevel ?? c.moodScore ?? 5), 0) / (checkIns.length || 1),
+      avgMoodScore: checkIns.reduce((s, c) => s + (c.moodLevel ?? 5), 0) / (checkIns.length || 1),
       avgEnergyLevel: checkIns.reduce((s, c) => s + (c.energyLevel ?? 3), 0) / (checkIns.length || 1),
       moodTrend: 'STABLE',
       energyTrend: 'IMPROVING',
@@ -382,10 +387,9 @@ const vaultHandlers = [
     const body = await request.json() as Record<string, unknown>
     const entry = {
       id: `v${Date.now()}`,
-      label: body['label'],
-      entryType: body['entryType'] ?? 'CREDENTIAL',
-      encryptedPayload: body['encryptedPayload'],
-      createdAt: new Date().toISOString(),
+      type: (body['type'] as string) ?? 'login',
+      title: (body['title'] as string) ?? '',
+      encryptedPayload: body['encryptedPayload'] as string,
     }
     vaultEntries = [entry as typeof vaultEntries[0], ...vaultEntries]
     return HttpResponse.json(entry, { status: 201 })
@@ -430,11 +434,13 @@ const linkHandlers = [
     const body = await request.json() as { inviteToken: string }
     const newLink = {
       id: `l${Date.now()}`,
-      titularId: 'u1',
       apoioId: 'u_new',
+      apoioName: 'Novo Apoio',
+      apoioEmail: 'novo@apoio.com',
       status: 'ACTIVE' as const,
       permissions: [] as string[],
       createdAt: new Date().toISOString(),
+      lastAccessAt: null,
     }
     console.info('[MSW] Vínculo aceito com token:', body.inviteToken)
     links = [...links, newLink as typeof links[0]]

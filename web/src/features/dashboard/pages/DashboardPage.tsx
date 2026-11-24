@@ -39,9 +39,11 @@ const priorityConfig = {
 
 const moodIcons: Record<MoodLevel, React.ElementType> = {
   1: Frown, 2: Frown, 3: Meh, 4: Smile, 5: SmilePlus,
+  6: SmilePlus, 7: SmilePlus, 8: SmilePlus, 9: SmilePlus, 10: SmilePlus,
 }
 const moodColors: Record<MoodLevel, string> = {
   1: '#ef4444', 2: '#f97316', 3: '#eab308', 4: '#22c55e', 5: '#10b981',
+  6: '#10b981', 7: '#06b6d4', 8: '#6366f1', 9: '#7c3aed', 10: '#a855f7',
 }
 
 export function DashboardPage() {

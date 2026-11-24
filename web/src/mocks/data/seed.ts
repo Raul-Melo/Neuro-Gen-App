@@ -13,8 +13,9 @@ export const MOCK_USERS: User[] = [
     email: 'titular@demo.com',
     name: 'Ana Neurogen',
     role: 'TITULAR',
+    status: 'ACTIVE',
     emailVerified: true,
-    twoFactorEnabled: false,
+    totpEnabled: false,
     createdAt: '2026-01-15T10:00:00Z',
   },
   {
@@ -22,8 +23,9 @@ export const MOCK_USERS: User[] = [
     email: 'apoio@demo.com',
     name: 'Dr. Bruno Apoio',
     role: 'APOIO',
+    status: 'ACTIVE',
     emailVerified: true,
-    twoFactorEnabled: false,
+    totpEnabled: false,
     createdAt: '2026-02-01T10:00:00Z',
   },
   {
@@ -31,8 +33,9 @@ export const MOCK_USERS: User[] = [
     email: 'raul.fsm692@gmail.com',
     name: 'Raul Fernandes',
     role: 'TITULAR',
+    status: 'ACTIVE',
     emailVerified: true,
-    twoFactorEnabled: false,
+    totpEnabled: false,
     createdAt: '2026-11-19T10:00:00Z',
   },
 ]

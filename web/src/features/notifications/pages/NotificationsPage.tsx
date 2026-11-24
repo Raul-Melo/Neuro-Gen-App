@@ -1,4 +1,4 @@
-import { Bell, BellOff, CalendarDays, Link2, Heart, Info, CheckCheck } from 'lucide-react'
+import { Bell, BellOff, Link2, Heart, Info, CheckCheck } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button, Spinner } from '@/shared/components/ui'
 import { notificationsService, type Notification } from '../services/notifications.service'

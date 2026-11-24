@@ -39,7 +39,7 @@ export function RegisterPage() {
   const role = watch('role')
 
   const onSubmit = (data: FormData) => {
-    register_.mutate({ name: data.name, email: data.email, password: data.password, role: data.role })
+    register_.mutate({ email: data.email, password: data.password, role: data.role })
   }
 
   return (
