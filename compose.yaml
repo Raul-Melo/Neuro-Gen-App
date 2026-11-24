@@ -1,0 +1,49 @@
+##############################################################################
+# Neuro-Gen — Modo desenvolvimento
+#
+# Sobe apenas PostgreSQL + pgAdmin.
+# O backend roda localmente: ./mvnw spring-boot:run
+# O frontend roda localmente: cd web && npm run dev
+#
+# Uso:
+#   docker compose up -d
+#   docker compose ps          # verifica saúde do postgres
+##############################################################################
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: neurogen-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: neurogen
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: neurogen
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neurogen -d neurogen"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: neurogen-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    driver: local
