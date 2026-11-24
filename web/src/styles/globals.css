@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sidebar-width: 244px;
+    --topbar-height: 60px;
+    --brand-gradient: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 50%, #c084fc 100%);
+  }
+
+  * {
+    @apply border-glass-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-base-900 text-slate-200 font-body;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Reduced motion — critico para perfil neurodivergente (RNF-USA.3) */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  [data-reduced-motion] *, [data-reduced-motion] *::before, [data-reduced-motion] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Scrollbar customizada */
+  ::-webkit-scrollbar { @apply w-1.5 h-1.5; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-white/[0.08] rounded-full hover:bg-white/[0.14]; }
+
+  /* Focus ring global (WCAG AA) */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand/60 ring-offset-2 ring-offset-base-900;
+  }
+}
+
+@layer components {
+  /* Glass surface */
+  .glass-card {
+    @apply bg-glass border border-glass-border rounded-2xl backdrop-blur-sm shadow-glass;
+  }
+  .glass-card-hover {
+    @apply glass-card transition-all duration-200
+      hover:bg-glass-hover hover:border-glass-border-hover hover:shadow-glass-lg;
+  }
+
+  /* Badge/pill de modulo */
+  .module-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  /* Layout de pagina */
+  .page-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-6;
+  }
+
+  /* Tipografia */
+  .section-header {
+    @apply font-display font-semibold text-lg text-slate-100 tracking-tight;
+  }
+  .label-muted {
+    @apply text-xs font-medium text-slate-500 uppercase tracking-wider;
+  }
+
+  /* Gradiente da marca como texto */
+  .text-brand-gradient {
+    background: var(--brand-gradient);
+    @apply bg-clip-text text-transparent;
+  }
+
+  /* Gradiente de borda (decorativo) */
+  .border-brand-gradient {
+    position: relative;
+  }
+  .border-brand-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--brand-gradient);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@layer utilities {
+  .bg-mesh { background-image: var(--tw-gradient-stops, none); }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Texto tabular para numeros/timers */
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* iOS safe area padding */
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+
+  /* Altura do BottomNav mobile (incluindo safe-area) */
+  .bottom-nav-height { height: calc(72px + env(safe-area-inset-bottom, 0px)); }
+
+  /* PWA standalone: esconde scrollbar e satura touch */
+  @media (display-mode: standalone) {
+    body { overscroll-behavior-y: none; }
+  }
+
+  /* Tap target mínimo (WCAG 2.5.5) */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
