@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -9,7 +9,6 @@ import { Button, Input } from '@/shared/components/ui'
 import { useRegister } from '../hooks/useAuth'
 
 const schema = z.object({
-  name: z.string().min(2, 'Nome muito curto').max(100, 'Nome muito longo'),
   email: z.string().email('E-mail inválido'),
   password: z
     .string()
@@ -78,17 +77,6 @@ export function RegisterPage() {
             </p>
           )}
         </fieldset>
-
-        <Input
-          label="Nome completo"
-          type="text"
-          autoComplete="name"
-          placeholder="Seu nome"
-          leftIcon={<User size={15} />}
-          error={errors.name?.message}
-          required
-          {...register('name')}
-        />
 
         <Input
           label="E-mail"

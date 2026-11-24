@@ -8,9 +8,13 @@ const lazy_ = <T extends React.ComponentType>(fn: () => Promise<{ [k: string]: T
   lazy(() => fn().then((m) => ({ default: m[key] as T })))
 
 // Auth
-const LoginPage       = lazy_(() => import('@/features/auth/pages/LoginPage'),       'LoginPage')
-const RegisterPage    = lazy_(() => import('@/features/auth/pages/RegisterPage'),    'RegisterPage')
-const OnboardingPage  = lazy_(() => import('@/features/onboarding/pages/OnboardingPage'), 'OnboardingPage')
+const LoginPage            = lazy_(() => import('@/features/auth/pages/LoginPage'),            'LoginPage')
+const RegisterPage         = lazy_(() => import('@/features/auth/pages/RegisterPage'),         'RegisterPage')
+const ForgotPasswordPage   = lazy_(() => import('@/features/auth/pages/ForgotPasswordPage'),   'ForgotPasswordPage')
+const ResetPasswordPage    = lazy_(() => import('@/features/auth/pages/ResetPasswordPage'),    'ResetPasswordPage')
+const TermsPage            = lazy_(() => import('@/features/auth/pages/TermsPage'),            'TermsPage')
+const PrivacyPage          = lazy_(() => import('@/features/auth/pages/PrivacyPage'),          'PrivacyPage')
+const OnboardingPage       = lazy_(() => import('@/features/onboarding/pages/OnboardingPage'), 'OnboardingPage')
 
 // App
 const DashboardPage      = lazy_(() => import('@/features/dashboard/pages/DashboardPage'),       'DashboardPage')
@@ -38,18 +42,37 @@ function RequireTitular({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+// Redireciona para /onboarding se autenticado mas ainda não completou o setup
+function RequireOnboarding({ children }: { children: React.ReactNode }) {
+  const hasCompletedOnboarding = useAuthStore((s) => s.hasCompletedOnboarding)
+  if (!hasCompletedOnboarding) return <Navigate to="/onboarding" replace />
+  return <>{children}</>
+}
+
 export const router = createBrowserRouter([
-  // Public
-  { path: '/login',    element: <S><LoginPage /></S> },
-  { path: '/register', element: <S><RegisterPage /></S> },
+  // Públicas
+  { path: '/login',            element: <S><LoginPage /></S> },
+  { path: '/register',         element: <S><RegisterPage /></S> },
+  { path: '/forgot-password',  element: <S><ForgotPasswordPage /></S> },
+  { path: '/reset-password',   element: <S><ResetPasswordPage /></S> },
+  { path: '/terms',            element: <S><TermsPage /></S> },
+  { path: '/privacy',          element: <S><PrivacyPage /></S> },
+
+  // Onboarding — requer auth, mas NÃO exige onboarding completo
   {
     path: '/onboarding',
     element: <RequireAuth><S><OnboardingPage /></S></RequireAuth>,
   },
 
-  // Protected
+  // Protegidas — requer auth + onboarding completo
   {
-    element: <RequireAuth><AppShell /></RequireAuth>,
+    element: (
+      <RequireAuth>
+        <RequireOnboarding>
+          <AppShell />
+        </RequireOnboarding>
+      </RequireAuth>
+    ),
     children: [
       { path: '/dashboard',     element: <S><DashboardPage /></S> },
       { path: '/agenda',        element: <S><AgendaPage /></S> },

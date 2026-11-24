@@ -7,9 +7,9 @@ import { useUIStore } from '@/shared/stores/ui.store'
 import { cn } from '@/shared/lib/cn'
 
 const permissionConfig: Record<string, { label: string; variant: 'agenda' | 'focus' | 'emotional'; icon: React.ElementType }> = {
-  AGENDA:    { label: 'Agenda',   variant: 'agenda',    icon: CalendarDays },
-  FOCUS:     { label: 'Foco',     variant: 'focus',     icon: Timer },
-  EMOTIONAL: { label: 'Emocional',variant: 'emotional', icon: Heart },
+  AGENDA:            { label: 'Agenda',   variant: 'agenda',    icon: CalendarDays },
+  FOCUS:             { label: 'Foco',     variant: 'focus',     icon: Timer },
+  EMOTIONAL_CHECKIN: { label: 'Emocional',variant: 'emotional', icon: Heart },
 }
 
 const statusConfig = {
@@ -18,7 +18,7 @@ const statusConfig = {
   REVOKED: { label: 'Revogado',  variant: 'danger'    as const, icon: XCircle },
 }
 
-const ALL_PERMISSIONS = ['AGENDA', 'FOCUS', 'EMOTIONAL']
+const ALL_PERMISSIONS = ['AGENDA', 'FOCUS', 'EMOTIONAL_CHECKIN']
 
 function LinkDetailModal({
   link,
