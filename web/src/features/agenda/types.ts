@@ -9,11 +9,13 @@ export interface Task {
   dueDate?: string
   dueTime?: string
   categoryId?: string
-  tags: string[]
+  completionPercentage?: number
+  sharedWithSupport?: boolean
+  tags?: string[]
   subtasks: Subtask[]
   reminders: Reminder[]
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Subtask {
@@ -32,14 +34,16 @@ export interface Event {
   id: string
   title: string
   description?: string
+  type?: 'APPOINTMENT' | 'PERSONAL' | 'ROUTINE'
   startAt: string
   endAt: string
-  allDay: boolean
+  allDay?: boolean
   recurrenceRule?: string
   color?: string
   categoryId?: string
+  sharedWithSupport?: boolean
   reminders: Reminder[]
-  createdAt: string
+  createdAt?: string
 }
 
 export interface Category {

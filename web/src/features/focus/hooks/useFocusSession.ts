@@ -19,10 +19,11 @@ export function useFocusTimer({
   onCycleComplete,
   onSessionEnd,
 }: UseFocusTimerOptions = {}) {
-  const [phase, setPhase] = useState<Phase>('idle')
-  const [secondsLeft, setSecondsLeft] = useState(workMinutes * 60)
-  const [cycle, setCycle] = useState(0)
+  const [phase, setPhase]               = useState<Phase>('idle')
+  const [secondsLeft, setSecondsLeft]   = useState(workMinutes * 60)
+  const [cycle, setCycle]               = useState(0)
   const [totalWorkSeconds, setTotalWorkSeconds] = useState(0)
+  const [isRunning, setIsRunning]       = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const totalSeconds =
@@ -35,14 +36,19 @@ export function useFocusTimer({
   const progress = 1 - secondsLeft / totalSeconds
 
   const clearTimer = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
   }, [])
 
   const start = useCallback(() => {
+    if (isRunning) return
     if (phase === 'idle') {
       setPhase('work')
       setSecondsLeft(workMinutes * 60)
     }
+    setIsRunning(true)
     intervalRef.current = setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
@@ -52,22 +58,23 @@ export function useFocusTimer({
         return s - 1
       })
     }, 1000)
-  }, [phase, workMinutes, clearTimer])
+  }, [phase, workMinutes, clearTimer, isRunning])
 
   const pause = useCallback(() => {
     clearTimer()
-    setPhase((p) => (p === 'work' ? 'work' : p))
+    setIsRunning(false)
   }, [clearTimer])
 
   const reset = useCallback(() => {
     clearTimer()
+    setIsRunning(false)
     setPhase('idle')
     setSecondsLeft(workMinutes * 60)
     setCycle(0)
     setTotalWorkSeconds(0)
   }, [clearTimer, workMinutes])
 
-  // Transition when seconds reach 0
+  // Phase transition when timer hits zero
   useEffect(() => {
     if (secondsLeft !== 0) return
 
@@ -77,18 +84,20 @@ export function useFocusTimer({
       setTotalWorkSeconds((t) => t + workMinutes * 60)
       onCycleComplete?.(nextCycle)
 
-      if (nextCycle % cyclesBeforeLongBreak === 0) {
-        setPhase('long-break')
-        setSecondsLeft(longBreakMinutes * 60)
-      } else {
-        setPhase('break')
-        setSecondsLeft(breakMinutes * 60)
-      }
+      setIsRunning(false)
+      clearTimer()
+
+      const nextPhase = nextCycle % cyclesBeforeLongBreak === 0 ? 'long-break' : 'break'
+      const nextSecs  = nextPhase === 'long-break' ? longBreakMinutes * 60 : breakMinutes * 60
+      setPhase(nextPhase)
+      setSecondsLeft(nextSecs)
     } else if (phase === 'break' || phase === 'long-break') {
+      setIsRunning(false)
+      clearTimer()
       setPhase('work')
       setSecondsLeft(workMinutes * 60)
     }
-  }, [secondsLeft, phase, cycle, workMinutes, breakMinutes, longBreakMinutes, cyclesBeforeLongBreak, onCycleComplete, onSessionEnd])
+  }, [secondsLeft, phase, cycle, workMinutes, breakMinutes, longBreakMinutes, cyclesBeforeLongBreak, onCycleComplete, onSessionEnd, clearTimer])
 
   useEffect(() => () => clearTimer(), [clearTimer])
 
@@ -96,6 +105,13 @@ export function useFocusTimer({
     const m = Math.floor(secs / 60).toString().padStart(2, '0')
     const s = (secs % 60).toString().padStart(2, '0')
     return `${m}:${s}`
+  }
+
+  const formatDuration = (secs: number) => {
+    const h = Math.floor(secs / 3600)
+    const m = Math.floor((secs % 3600) / 60)
+    if (h > 0) return `${h}h ${m}m`
+    return `${m}m`
   }
 
   return {
@@ -106,7 +122,8 @@ export function useFocusTimer({
     cycle,
     totalWorkSeconds,
     display: formatTime(secondsLeft),
-    isRunning: !!intervalRef.current,
+    focusDisplay: formatDuration(totalWorkSeconds),
+    isRunning,
     start,
     pause,
     reset,

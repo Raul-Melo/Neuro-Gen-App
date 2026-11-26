@@ -12,6 +12,7 @@ const LoginPage            = lazy_(() => import('@/features/auth/pages/LoginPage
 const RegisterPage         = lazy_(() => import('@/features/auth/pages/RegisterPage'),         'RegisterPage')
 const ForgotPasswordPage   = lazy_(() => import('@/features/auth/pages/ForgotPasswordPage'),   'ForgotPasswordPage')
 const ResetPasswordPage    = lazy_(() => import('@/features/auth/pages/ResetPasswordPage'),    'ResetPasswordPage')
+const VerifyEmailPage      = lazy_(() => import('@/features/auth/pages/VerifyEmailPage'),      'VerifyEmailPage')
 const TermsPage            = lazy_(() => import('@/features/auth/pages/TermsPage'),            'TermsPage')
 const PrivacyPage          = lazy_(() => import('@/features/auth/pages/PrivacyPage'),          'PrivacyPage')
 const OnboardingPage       = lazy_(() => import('@/features/onboarding/pages/OnboardingPage'), 'OnboardingPage')
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
   { path: '/register',         element: <S><RegisterPage /></S> },
   { path: '/forgot-password',  element: <S><ForgotPasswordPage /></S> },
   { path: '/reset-password',   element: <S><ResetPasswordPage /></S> },
+  { path: '/verify-email',     element: <S><VerifyEmailPage /></S> },
   { path: '/terms',            element: <S><TermsPage /></S> },
   { path: '/privacy',          element: <S><PrivacyPage /></S> },
 

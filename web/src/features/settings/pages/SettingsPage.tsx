@@ -85,18 +85,26 @@ export function SettingsPage() {
       <Card>
         <div className="flex items-center gap-4 pb-4 border-b border-glass-border">
           <div className="w-12 h-12 rounded-2xl bg-focus-muted border border-focus/20 flex items-center justify-center font-display font-bold text-focus-light text-lg select-none">
-            {user?.name?.charAt(0).toUpperCase()}
+            {(user?.email ?? 'U').charAt(0).toUpperCase()}
           </div>
-          <div>
-            <p className="font-medium text-slate-200">{user?.name}</p>
-            <p className="text-xs text-slate-500">{user?.email}</p>
-            <p className="text-[10px] text-slate-600 mt-0.5">
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-slate-200 truncate">{user?.email}</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">
               {user?.role === 'TITULAR' ? 'Conta Titular' : 'Conta de Apoio'}
+              {user?.emailVerified === false && (
+                <span className="ml-2 text-amber-400">· E-mail não verificado</span>
+              )}
             </p>
+            {user?.totpEnabled && (
+              <p className="text-[10px] text-emotional mt-0.5">· 2FA ativo</p>
+            )}
+            {user?.status === 'PENDING_VERIFICATION' && (
+              <p className="text-[10px] text-amber-400 mt-0.5">· Aguardando verificação de e-mail</p>
+            )}
           </div>
         </div>
 
-        <div className="pt-3">
+        <div className="pt-3 space-y-1">
           <Button
             variant="ghost"
             size="sm"

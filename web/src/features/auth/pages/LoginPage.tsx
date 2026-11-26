@@ -113,6 +113,12 @@ export function LoginPage() {
             Criar conta
           </Link>
         </p>
+
+        {login.isError && (
+          <p role="alert" className="text-xs text-center text-slate-500 mt-1">
+            Conta em análise? Verifique seu e-mail e clique no link de ativação.
+          </p>
+        )}
       </form>
     </AuthLayout>
   )

@@ -253,7 +253,9 @@ function VaultSetupModal({ onClose, onSetup }: { onClose: () => void; onSetup: (
     if (masterPassword !== confirm) { setErr('As senhas não coincidem'); return }
     setSaving(true); setErr('')
     try {
+      // Gera e persiste o salt para que o unlock possa reproduzir o mesmo hash
       const salt = crypto.getRandomValues(new Uint8Array(16))
+      localStorage.setItem('ng_vault_salt', btoa(String.fromCharCode(...salt)))
       const masterPasswordHash = await deriveVerifier(masterPassword, salt)
       const result = await vaultService.setup({ argon2Params: 'm=65536,t=3,p=4', masterPasswordHash })
       addToast({ variant: 'success', message: 'Cofre configurado!' })
@@ -354,17 +356,26 @@ export function VaultPage() {
     if (!masterPassword) { setError('Insira a senha mestra'); return }
     setUnlocking(true); setError('')
     try {
-      const salt = crypto.getRandomValues(new Uint8Array(16))
+      // Recupera o salt armazenado no setup para reproduzir o mesmo hash
+      const storedSalt = localStorage.getItem('ng_vault_salt')
+      if (!storedSalt) {
+        setError('Cofre não configurado neste dispositivo. Configure primeiro.')
+        setShowSetup(true)
+        return
+      }
+      const salt = Uint8Array.from(atob(storedSalt), (c) => c.charCodeAt(0))
       const masterPasswordHash = await deriveVerifier(masterPassword, salt)
       const result = await vaultService.open(masterPasswordHash)
       setVaultSessionToken(result.vaultSessionToken)
     } catch (e: unknown) {
       const status = (e as { response?: { status?: number } })?.response?.status
-      if (status === 404 || status === 400) {
+      if (status === 422) {
         setError('Cofre não configurado. Configure primeiro.')
         setShowSetup(true)
+      } else if (status === 403) {
+        setError('Senha mestra incorreta.')
       } else {
-        setError('Senha mestra incorreta ou sessão expirada')
+        setError('Erro ao desbloquear cofre. Tente novamente.')
       }
     } finally {
       setUnlocking(false)

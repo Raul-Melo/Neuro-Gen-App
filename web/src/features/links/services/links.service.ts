@@ -2,22 +2,19 @@ import api from '@/shared/lib/api'
 
 // ── Tipos alinhados com o backend ────────────────────────────────────────────
 
-export type LinkPermission = 'AGENDA' | 'TASKS' | 'FOCUS' | 'EMOTIONAL_CHECKIN' | 'VAULT'
+export type LinkPermission = 'AGENDA' | 'TASKS' | 'FOCUS' | 'EMOTIONAL_CHECKIN'
 
 export interface LinkResponse {
   id: string
   titularId: string
-  apoioId: string
-  status: 'ACTIVE' | 'PENDING' | 'REVOKED'
+  apoioId: string | null
+  status: 'ACTIVE' | 'PENDING' | 'REVOKED' | 'EXPIRED'
   permissions: LinkPermission[]
   createdAt: string
-  // Campos extras populados pelo mock (não existem no backend real)
-  apoioName?: string
-  apoioEmail?: string
-  lastAccessAt?: string | null
 }
 
 export interface InviteResult {
+  linkId: string
   inviteToken: string
   expiresAt: string
 }

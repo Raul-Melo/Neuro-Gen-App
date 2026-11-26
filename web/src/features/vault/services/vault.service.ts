@@ -14,12 +14,11 @@ export interface VaultEntry {
 
 export interface VaultSetupResult {
   recoveryKey: string
-  configuredAt: string
 }
 
 export interface VaultOpenResult {
   vaultSessionToken: string
-  expiresAt: string
+  expiresInSeconds: number
 }
 
 // ── Helpers para o header de sessão do Vault ─────────────────────────────────
@@ -68,9 +67,11 @@ export const vaultService = {
     await api.post('/vault/recover', data)
   },
 
-  /**
-   * Lista entradas (apenas metadados — ciphertext nunca retornado na listagem).
-   */
+  async getEntry(vaultSessionToken: string, id: string): Promise<VaultEntry & { encryptedPayload: string }> {
+    const res = await api.get(`/vault/entries/${id}`, { headers: vaultHeaders(vaultSessionToken) })
+    return res.data
+  },
+
   async getEntries(vaultSessionToken: string): Promise<VaultEntry[]> {
     const res = await api.get('/vault/entries', { headers: vaultHeaders(vaultSessionToken) })
     return Array.isArray(res.data) ? res.data : (res.data.content ?? [])

@@ -4,76 +4,89 @@ import api from '@/shared/lib/api'
 
 export interface CheckInResult {
   id: string
-  moodScore: number       // 1–10
-  energyLevel: number     // 1–10
+  moodScore: number       // 1–5
+  energyLevel: number     // 1–5
+  moodLevel: 'VERY_LOW' | 'LOW' | 'NEUTRAL' | 'HIGH' | 'VERY_HIGH'
   checkInDate: string     // 'YYYY-MM-DD'
   checkInTime: string     // 'HH:mm:ss'
-  createdAt: string
+  notes?: string | null
 }
 
-export interface JournalResult {
-  message: string         // 'Entrada registrada: <id>'
+export interface JournalEntryResult {
+  id: string
+  content: string
+  relatedCheckInId?: string | null
+  entryDate: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface EmotionalTrendResult {
-  ownerId: string
+  dataPoints: CheckInResult[]
+  averageMood: number
+  averageEnergy: number
   periodDays: number
-  totalCheckIns: number
-  avgMoodScore: number
-  avgEnergyLevel: number
-  moodTrend: 'IMPROVING' | 'STABLE' | 'DECLINING' | 'INSUFFICIENT_DATA'
-  energyTrend: 'IMPROVING' | 'STABLE' | 'DECLINING' | 'INSUFFICIENT_DATA'
+  trend: 'IMPROVING' | 'STABLE' | 'DECLINING'
   disclaimer: string
 }
 
 // ── Service ──────────────────────────────────────────────────────────────────
 
 export const emotionalService = {
-  /**
-   * Registra check-in do dia atual (apenas um por dia por usuário).
-   * Backend espera moodScore 1-10; a UI usa escala 1-5 — multiplica por 2.
-   */
+  /** Registra check-in do dia atual (apenas um por dia). Backend escala 1–5. */
   async createCheckIn(data: {
-    moodScore: number   // 1-5 (UI) → enviado como 1-10
-    energyLevel: number // 1-5 (UI) → enviado como 1-10
+    moodScore: number    // 1–5
+    energyLevel: number  // 1–5
     notes?: string
   }): Promise<CheckInResult> {
-    const res = await api.post('/emotional/checkins', {
-      moodScore:   data.moodScore * 2,
-      energyLevel: data.energyLevel * 2,
-      notes:       data.notes,
-    })
+    const res = await api.post('/emotional/checkins', data)
     return res.data
   },
 
-  /**
-   * Lista check-ins recentes do usuário.
-   * Backend: GET /emotional/checkins
-   */
-  async getCheckIns(params?: { page?: number; size?: number }): Promise<{ content: CheckInResult[] }> {
+  /** Lista check-ins dos últimos N dias (padrão 30). */
+  async getCheckIns(params?: { periodDays?: number }): Promise<CheckInResult[]> {
     const res = await api.get('/emotional/checkins', { params })
-    const data = res.data
-    return Array.isArray(data) ? { content: data } : data
+    return Array.isArray(res.data) ? res.data : []
   },
 
-  /**
-   * Escreve entrada de diário emocional (cifrada pelo servidor).
-   * Backend: POST /emotional/journal
-   */
+  async getCheckIn(id: string): Promise<CheckInResult> {
+    const res = await api.get(`/emotional/checkins/${id}`)
+    return res.data
+  },
+
+  async deleteCheckIn(id: string): Promise<void> {
+    await api.delete(`/emotional/checkins/${id}`)
+  },
+
+  /** Escreve entrada de diário (cifrada pelo servidor). */
   async createJournalEntry(data: {
     content: string
     relatedCheckInId?: string
-  }): Promise<JournalResult> {
+  }): Promise<JournalEntryResult> {
     const res = await api.post('/emotional/journal', data)
     return res.data
   },
 
-  /**
-   * Retorna tendência de humor/energia no período.
-   * Backend: GET /emotional/trend
-   * - userId: UUID do Titular a consultar (Apoio com permissão EMOTIONAL_CHECKIN)
-   * - periodDays: janela em dias (padrão 30)
-   */
+  async getJournal(): Promise<JournalEntryResult[]> {
+    const res = await api.get('/emotional/journal')
+    return Array.isArray(res.data) ? res.data : []
+  },
+
+  async getJournalEntry(id: string): Promise<JournalEntryResult> {
+    const res = await api.get(`/emotional/journal/${id}`)
+    return res.data
+  },
+
+  async updateJournalEntry(id: string, content: string): Promise<JournalEntryResult> {
+    const res = await api.put(`/emotional/journal/${id}`, { content })
+    return res.data
+  },
+
+  async deleteJournalEntry(id: string): Promise<void> {
+    await api.delete(`/emotional/journal/${id}`)
+  },
+
+  /** Tendência emocional do período. */
   async getTrend(params?: {
     userId?: string
     periodDays?: number

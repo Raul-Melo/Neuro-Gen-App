@@ -7,9 +7,20 @@ import type { LoginRequest, RegisterRequest } from '@/shared/types/auth.types'
 import type { AxiosError } from 'axios'
 import type { ApiError } from '@/shared/types/api.types'
 
+interface BackendError extends ApiError {
+  fieldErrors?: Record<string, string>
+}
+
 function extractMessage(error: unknown): string {
-  const axiosError = error as AxiosError<ApiError>
-  return axiosError.response?.data?.message ?? 'Ocorreu um erro. Tente novamente.'
+  const axiosError = error as AxiosError<BackendError>
+  const data = axiosError.response?.data
+  if (data?.fieldErrors) {
+    const fields = Object.entries(data.fieldErrors)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(' · ')
+    return fields
+  }
+  return data?.message ?? 'Ocorreu um erro. Tente novamente.'
 }
 
 export function useLogin() {
@@ -47,13 +58,13 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: (data: RegisterRequest) => authService.register(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       addToast({
         variant: 'success',
         message: 'Conta criada! Verifique seu e-mail para ativar.',
         duration: 6000,
       })
-      navigate('/login')
+      navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`)
     },
     onError: (error) => {
       addToast({ variant: 'error', message: extractMessage(error) })

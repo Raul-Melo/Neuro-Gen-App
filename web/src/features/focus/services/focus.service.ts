@@ -5,14 +5,14 @@ import api from '@/shared/lib/api'
 export interface FocusSessionResult {
   id: string
   userId: string
-  taskId?: string
+  taskId?: string | null
   plannedMinutes: number
   breakMinutes: number
   status: 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'CANCELLED'
   startedAt: string
-  endedAt?: string
-  pausedAt?: string
+  endedAt?: string | null
   effectiveSeconds: number
+  pauses: { pausedAt: string; resumedAt?: string | null }[]
 }
 
 export interface StartSessionPayload {
@@ -61,6 +61,10 @@ export const focusService = {
   async cancelSession(id: string): Promise<FocusSessionResult> {
     const res = await api.post(`/focus/sessions/${id}/cancel`)
     return res.data
+  },
+
+  async deleteSession(id: string): Promise<void> {
+    await api.delete(`/focus/sessions/${id}`)
   },
 
   /** Histórico de sessões no período (ISO 8601) */

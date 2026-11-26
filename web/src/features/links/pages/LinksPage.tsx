@@ -8,17 +8,19 @@ import { cn } from '@/shared/lib/cn'
 
 const permissionConfig: Record<string, { label: string; variant: 'agenda' | 'focus' | 'emotional'; icon: React.ElementType }> = {
   AGENDA:            { label: 'Agenda',   variant: 'agenda',    icon: CalendarDays },
+  TASKS:             { label: 'Tarefas',  variant: 'agenda',    icon: CalendarDays },
   FOCUS:             { label: 'Foco',     variant: 'focus',     icon: Timer },
   EMOTIONAL_CHECKIN: { label: 'Emocional',variant: 'emotional', icon: Heart },
 }
 
-const statusConfig = {
-  ACTIVE:  { label: 'Ativo',     variant: 'emotional' as const, icon: CheckCircle2 },
-  PENDING: { label: 'Pendente',  variant: 'vault'     as const, icon: Clock },
-  REVOKED: { label: 'Revogado',  variant: 'danger'    as const, icon: XCircle },
+const statusConfig: Record<string, { label: string; variant: 'emotional' | 'vault' | 'danger'; icon: React.ElementType }> = {
+  ACTIVE:  { label: 'Ativo',     variant: 'emotional', icon: CheckCircle2 },
+  PENDING: { label: 'Pendente',  variant: 'vault',     icon: Clock },
+  REVOKED: { label: 'Revogado',  variant: 'danger',    icon: XCircle },
+  EXPIRED: { label: 'Expirado',  variant: 'danger',    icon: XCircle },
 }
 
-const ALL_PERMISSIONS = ['AGENDA', 'FOCUS', 'EMOTIONAL_CHECKIN']
+const ALL_PERMISSIONS = ['AGENDA', 'TASKS', 'FOCUS', 'EMOTIONAL_CHECKIN']
 
 function LinkDetailModal({
   link,
@@ -37,7 +39,7 @@ function LinkDetailModal({
     setPerms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p])
 
   return (
-    <Modal open onClose={onClose} title={link.apoioName} description={link.apoioEmail}>
+    <Modal open onClose={onClose} title={`Apoio ${(link.apoioId ?? link.id).slice(0, 8)}`} description={`Vínculo ${link.id.slice(0, 8)}`}>
       <div className="space-y-5">
         {/* Status */}
         <div className="flex items-center gap-2">
@@ -83,12 +85,10 @@ function LinkDetailModal({
           </div>
         )}
 
-        {link.lastAccessAt && (
-          <p className="text-xs text-slate-500 flex items-center gap-1">
-            <Clock size={11} aria-hidden />
-            Último acesso: {new Date(link.lastAccessAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
-          </p>
-        )}
+        <p className="text-xs text-slate-500 flex items-center gap-1">
+          <Clock size={11} aria-hidden />
+          Criado em: {new Date(link.createdAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+        </p>
 
         <div className="flex items-center justify-between pt-2 border-t border-glass-border">
           {link.status !== 'REVOKED' && (
@@ -224,15 +224,15 @@ export function LinksPage() {
                     <li key={link.id}>
                       <Card className="p-4">
                         <div className="flex items-start gap-4">
-                          <Avatar name={link.apoioName} />
+                          <Avatar name={(link.apoioId ?? link.id ?? '?').slice(0, 2).toUpperCase()} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-medium text-slate-200">{link.apoioName}</span>
+                              <span className="text-sm font-medium text-slate-200">Apoio {(link.apoioId ?? link.id ?? '—').slice(0, 8)}</span>
                               <Badge variant={status.variant}>
                                 <StatusIcon size={11} aria-hidden />{status.label}
                               </Badge>
                             </div>
-                            <p className="text-xs text-slate-500 mt-0.5">{link.apoioEmail}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">ID: {link.apoioId}</p>
 
                             {link.permissions.length > 0 && (
                               <div className="flex gap-1.5 mt-2 flex-wrap" aria-label="Permissões concedidas">
@@ -253,19 +253,17 @@ export function LinksPage() {
                               <p className="text-[10px] text-slate-600 mt-1.5">Aguardando aceitação do convite</p>
                             )}
 
-                            {link.lastAccessAt && (
-                              <p className="text-[10px] text-slate-600 mt-1.5 flex items-center gap-1">
-                                <Clock size={9} aria-hidden />
-                                Último acesso: {new Date(link.lastAccessAt).toLocaleDateString('pt-BR')}
-                              </p>
-                            )}
+                            <p className="text-[10px] text-slate-600 mt-1.5 flex items-center gap-1">
+                              <Clock size={9} aria-hidden />
+                              Criado em: {new Date(link.createdAt).toLocaleDateString('pt-BR')}
+                            </p>
                           </div>
 
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelectedLink(link)}
-                            aria-label={`Gerenciar vínculo com ${link.apoioName}`}
+                            aria-label={`Gerenciar vínculo ${link.id}`}
                             className="text-slate-500 w-8 h-8 p-0 flex-shrink-0"
                           >
                             <Eye size={14} />

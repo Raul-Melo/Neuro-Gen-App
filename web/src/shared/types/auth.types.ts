@@ -3,13 +3,16 @@ import type { UserRole } from './api.types'
 export interface User {
   id: string
   email: string
-  name?: string        // não está no backend; mantido para compatibilidade com mock/UI
   role: UserRole
   status: 'PENDING_VERIFICATION' | 'ACTIVE' | 'SUSPENDED'
   emailVerified: boolean
+  cpf?: string
+  birthDate?: string
+  hasPendingTotpSetup?: boolean
   totpEnabled: boolean
-  avatarUrl?: string
   createdAt?: string
+  // name não existe no backend — derivado do e-mail para exibição
+  name?: string
 }
 
 export interface AuthTokens {
@@ -29,7 +32,8 @@ export interface RegisterRequest {
   email: string
   password: string
   role: UserRole
-  // name não é aceito pelo backend — omitido aqui
+  cpf: string
+  birthDate: string   // 'YYYY-MM-DD'
 }
 
 export interface RefreshRequest {
